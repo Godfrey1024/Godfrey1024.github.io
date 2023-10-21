@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>JDK8新特性-Lamda表达式</title>
+      <link href="/posts/44073.html"/>
+      <url>/posts/44073.html</url>
+      
+        <content type="html"><![CDATA[<p>在 Java8 之前，当实现只有一个方法的接口，我们通常是通过使用匿名内部类的方式来重写接口的方法，以 Comparator 为例：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, <span class="keyword">new</span> <span class="title class_">Comparator</span>&lt;Integer&gt;() &#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(Integer o1, Integer o2)</span> &#123;</span><br><span class="line"><span class="keyword">return</span> o1.compareTo(o2);</span><br><span class="line">&#125;</span><br><span class="line">&#125;);</span><br><span class="line">System.out.println(list); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br></pre></td></tr></table></figure><p>Java8 中引入了 Lambda 表达式，提供了更加简洁的语法：<code>() -&gt; &#123;&#125;</code></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, (Integer o1, Integer o2) -&gt; &#123;</span><br><span class="line"><span class="keyword">return</span> o1.compareTo(o2);</span><br><span class="line">&#125;);</span><br><span class="line">System.out.println(list); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br></pre></td></tr></table></figure><p>从 Java8 开始编译器可以从接口的方法签名中自动推导出参数类型，因此可以省略掉类型的声明.</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, (o1, o2) -&gt; &#123;</span><br><span class="line"><span class="keyword">return</span> o1.compareTo(o2);</span><br><span class="line">&#125;);</span><br><span class="line">System.out.println(list); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br></pre></td></tr></table></figure><p>当方法体只有一行代码时，可以省略掉 {} 和 return 关键字以及代码行结束的分号“;”</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, (o1, o2) -&gt; o1.compareTo(o2));</span><br><span class="line">System.out.println(list); <span class="comment">// [1, 2, 3, 4, 5, 6]</span></span><br></pre></td></tr></table></figure><p>对于只有一个抽象方法的接口，都可以使用 Lambda 表达式。为了确保接口符合要求，可以使用 @FunctionalInterface 注解标注接口，被 @FunctionalInterface 注解标注的接口（称为函数式接口），只允许存在一个抽象方法，没有或多于一个抽象方法，编译都将无法通过。由于默认的方法不是抽象的，因此，函数式接口依然可以存在一个或多个默认方法。其中，每个 Lambda 表达式都将匹配函数式接口的这个抽象方法，Lambda 表达式的类型也由该接口类型决定。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Operation</span>&lt;I, O&gt; &#123;</span><br><span class="line">O <span class="title function_">calculate</span><span class="params">(I input)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>对函数式接口使用 Lambda 表达式</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">Operation&lt;Integer, Integer&gt; square = (i) -&gt; i * i;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">result</span> <span class="operator">=</span> square.calculate(<span class="number">3</span>);</span><br><span class="line">System.out.println(result);<span class="comment">// 9</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> Java </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> JDK新特性 </tag>
+            
+            <tag> JDK8 </tag>
+            
+            <tag> Java </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>JDK8新特性-接口默认方法</title>
+      <link href="/posts/64503.html"/>
+      <url>/posts/64503.html</url>
+      
+        <content type="html"><![CDATA[<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><p>在JDK8版本中，接口也可以为方法提供默认的实现，即接口也可以有自己的实现方法，具体的做法是使用关键字default即可为接口声明一个默认的方法。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Predators</span> &#123;</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;eat meat&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>任何具体类在实现接口时，接口的默认方法不是必须实现的，非默认方法则必须实现。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span> <span class="keyword">implements</span> <span class="title class_">Predators</span> &#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;wang....&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>接口使用方面与平常无异，很自然。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"><span class="type">Dog</span> <span class="variable">dog</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Dog</span>();</span><br><span class="line">dog.doSomething();<span class="comment">// wang....</span></span><br><span class="line">dog.eat();<span class="comment">// eat meat</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>关于多重继承：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Herbivore</span> &#123;</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;eat fruit&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>以下这段代码将无法通过编译。因 Predators 和 Herbivore 两个接口使用了同样签名的默认方法（eat），那么，在 Person 类中就无法确定最终使用哪个接口的默认实现。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> <span class="keyword">implements</span> <span class="title class_">Predators</span>, Herbivore &#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;duang....&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>为了解决冲突，你必须要通过手动重写的方式来修复。若想引用 Herbivore 接口中的 eat 方法，如下所示：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> <span class="keyword">implements</span> <span class="title class_">Predators</span>, Herbivore &#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">Herbivore.<span class="built_in">super</span>.eat();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;duang....&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>使用方面与平常无异，很自然。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"><span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line">person.doSomething();<span class="comment">// duang....</span></span><br><span class="line">person.eat();<span class="comment">// eat fruit</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> Java </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> JDK新特性 </tag>
+            
+            <tag> JDK8 </tag>
+            
+            <tag> Java </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Post请求为什么会发送两次请求？</title>
+      <link href="/posts/52689.html"/>
+      <url>/posts/52689.html</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在解释这个问题之前，我们先了解一下浏览器的<code>同源策略</code>和<code>跨域资源共享</code>两个概念。</p><h2 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h2><p>在浏览器中，HTML文档的内容是很开放的，任何资源都可以引入其中，比如JavaScript文件、图片、音频、视频、可执行文件、压缩文件等等。</p><p>同时，浏览器也设置了一些安全策略，以保证用户的隐私和数据的安全，如果没有这些限制，可能会出现一些安全问题，比如：跨站脚本攻击（XSS）、跨站点请求伪造（CSRF）等等。</p><p>同源策略是其中最重要的一个安全策略，它的作用就是<strong>限制一个源的文档或者它加载的脚本如何能与另一个源的资源进行交互</strong>。</p><p><strong>如果两个URL的协议、主机和端口都相同，我们就称这两个URL同源。</strong></p><p>协议：定义了数据如何在计算机内和之间进行交换的规则的系统，例如 HTTP、HTTPS。</p><p>主机：是已连接到一个计算机网络的一台电子计算机或其他设备。网络主机可以向网络上的用户或其他节点提供信息资源、服务和应用。</p><p>端口：主机是计算机到计算机之间的通信，那么端口就是进程到进程之间的通信。</p><p>同源策略主要表现在以下三个方面：DOM、Web 数据和网络。</p><ol><li>DOM 访问限制：同源策略限制了网页脚本（如 JavaScript）访问其他源的 DOM。这意味着<code>通过脚本无法直接访问跨源页面的 DOM 元素、属性或方法</code>。这是为了防止恶意网站从其他网站窃取敏感信息。</li><li>Web 数据限制：同源策略也限制了从其他源加载的 Web 数据（例如 XMLHttpRequest 或 Fetch API）。<code>在同源策略下，XMLHttpRequest 或 Fetch 请求只能发送到与当前网页具有相同源的目标</code>。这有助于防止跨站点请求伪造（CSRF）等攻击。</li><li>网络通信限制：同源策略还限制了跨源的网络通信。<code>浏览器会阻止从一个源发出的请求获取来自其他源的响应</code>。这样做是为了确保只有受信任的源能够与服务器进行通信，以避免恶意行为。</li></ol><p>出于安全原因，浏览器限制从脚本内发起的跨源 HTTP 请求，XMLHttpRequest 或 Fetch API，只能从加载应用程序的同一个域请求 HTTP 资源，除非使用 CORS 头文件。</p><h2 id="跨域资源共享"><a href="#跨域资源共享" class="headerlink" title="跨域资源共享"></a>跨域资源共享</h2><p>跨域资源共享（Cross Orign Resource Share，简称CORS），顾名思义，它是用来实现跨域共享资源的问题，前面我们所说的浏览器的同源策略会导致跨域请求资源失败，如果我们在开发中就是要跨域请求资源，就必须使用到CORS。</p><p>CORS的基本思想是，服务器在响应中提供一个标头（HTTP 头），指示哪些源被允许访问资源。浏览器在发起跨域请求时会先发送一个<strong>预检请求（OPTIONS请求）</strong>到服务器，服务器通过设置适当的CORS标头来指定是否允许跨域请求，并指定允许的请求源、方法、标头等信息。</p><p>在具体讲解预检请求之前，我们先说一下最常见的请求-简单请求。</p><h2 id="简单请求"><a href="#简单请求" class="headerlink" title="简单请求"></a>简单请求</h2><p>不会触发CORS的预检请求。这样的请求为简单请求。若请求满足所有下述条件，则该请求可视为简单请求：</p><ol><li>请求方式限制：只能使用 GET、HEAD、POST 这三种HTTP请求方式之一。如果请求使用了其他请求方式，就不再被视为简单请求。</li><li>自定义请求头限制：请求的头中只能是以下几种常见的：Accept、Accept-Language、Content-Language、Last-Event-ID、Content-Type（仅限于 application&#x2F;x-www-form-urlencoded、multipart&#x2F;form-data、text&#x2F;plain）；field 字段的值只能是：DPR、Download、Save-Data、Viewport-Width、WIdth。如果请求使用了其他请求头，同样不再被视为简单请求。</li><li>请求中没有使用 ReadableStream 对象。</li><li>不使用自定义请求标头：请求不能包含用户自定义的标头。</li><li>请求中的任意 XMLHttpRequestUpload 对象均没有注册任何事件监听器；XMLHttpRequestUpload 对象可以使用 XMLHttpRequest.upload 属性访问</li></ol><h2 id="预检请求"><a href="#预检请求" class="headerlink" title="预检请求"></a>预检请求</h2><p><strong>非简单请求的 CORS 请求，会在正式通信之前，增加一次 HTTP 查询请求，称为：预检请求。</strong></p><p>需预检的请求要求必须首先使用 OPTIONS 方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求。预检请求 的使用，可以避免跨域请求对服务器的用户数据产生未预期的影响。</p><p>一旦服务器通过了 预检请求，以后每次浏览器正常的 CORS 请求，就都跟简单请求一样，会有一个 Origin 头信息字段。服务器的回应，也都会有一个 Access-Control-Allow-Origin 头信息字段。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>预检请求是在进行跨域资源共享 CORS 时，由浏览器自动发起的一种 OPTIONS 请求。它的存在是为了保障安全，并允许服务器决定是否允许跨域请求。</p><p>跨域请求是指在浏览器中向不同域名、不同端口或不同协议的资源发送请求。</p><p>出于安全原因，浏览器默认禁止跨域请求，只允许同源策略。而当网页需要进行跨域请求时，浏览器会自动发送一个预检请求，以确定是否服务器允许实际的跨域请求。</p><p>预检请求中包含了一些额外的头部信息，如 Origin 和 Access-Control-Request-Method 等，用于告知服务器实际请求的方法和来源。服务器收到预检请求后，可以根据这些头部信息，进行验证和授权判断。如果服务器认可该跨域请求，将返回一个包含 Access-Control-Allow-Origin 等头部信息的响应，浏览器才会继续发送实际的跨域请求。</p><p>使用预检请求机制可以有效地防范跨域请求带来的安全风险，保护用户数据和隐私。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> JavaWeb </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Java </tag>
+            
+            <tag> HTTTP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>MySQL入门</title>
+      <link href="/posts/62298.html"/>
+      <url>/posts/62298.html</url>
+      
+        <content type="html"><![CDATA[<p>aaaa<br>bbb<br>ccc</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> MySQL </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>mysql.md</title>
+      <link href="/posts/23560.html"/>
+      <url>/posts/23560.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="SQL语句优化"><a href="#SQL语句优化" class="headerlink" title="SQL语句优化"></a>SQL语句优化</h1><h4 id="2-1-通过慢查日志发现有问题的SQL"><a href="#2-1-通过慢查日志发现有问题的SQL" class="headerlink" title="2.1 通过慢查日志发现有问题的SQL"></a>2.1 通过慢查日志发现有问题的SQL</h4><ol><li>查询次数多且每次查询占用时间长的sql<ul><li>通常为<strong>pt-query-digest</strong>分析的前几个查询；该工具可以很清楚的看出每个SQL执行的次数及百分比等信息，执行的次数多，占比比较大的SQL</li></ul></li><li>IO大的sql<ul><li>注意pt-query-digest分析中的Rows examine项。扫描的行数越多，IO越大。</li></ul></li><li>未命中的索引的SQL<ul><li>注意pt-query-digest分析中的Rows examine 和Rows Send的对比。说明该SQL的索引命中率不高，对于这种SQL，我们要重点进行关注。</li></ul></li><li>通过explain查询分析SQL的执行计划, SQL的执行计划侧面反映出了SQL的执行效率，</li></ol><h4 id="2-2-常见SQL优化手段"><a href="#2-2-常见SQL优化手段" class="headerlink" title="2.2 常见SQL优化手段"></a>2.2 常见SQL优化手段</h4><ol><li>函数Max()的优化<ul><li>在求max的字段<strong>建索引</strong></li></ul></li><li>函数Count()的优化：<ul><li>Count(*):是包含null值；Count(id)：不包含null值</li></ul></li><li>子查询的优化<ul><li>子查询是我们在开发过程中经常使用的一种方式，在通常情况下，需要把<strong>子查询优化为join查询</strong>但在优化是需要注意关联键是否有一对多的关系，要注意重复数据(distinct去重)。</li><li>在用Join进行多表联合查询时，我们通常使用On来建立两个表的关系。其实还有一个更方便的关键字，那就是Using（如果两个表的关联字段名是一样）。</li></ul></li><li>group by的优化:<ul><li>最好使用同一表中的列，在子查询中分组</li></ul></li><li>Limit查询的优化：Limit常用于分页处理，时常会伴随order by从句使用，因此大多时候会使用Filesorts这样会造成大量的IO问题。<ul><li>优化步骤1：使用有索引的列或主键进行order by操作，因为大家知道，innodb是按照主键的逻辑顺序进行排序的。可以避免很多的IO操作。</li><li>优化步骤2：记录上次返回的主键， 在下次查询时使用主键过滤。（说明：避免了数据量大时扫描过多的记录）</li><li>注意事项：主键要顺序排序并连续的，如果主键中间空缺了某一列，或者某几列，会出现列出数据不足一页的数据；如果不连续的情况，建立一个附加的列index_id列，保证这一列数据要自增的，并添加索引即可。</li></ul></li></ol>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Hello World</title>
+      <link href="/posts/16107.html"/>
+      <url>/posts/16107.html</url>
+      
+        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>MySQL分库分表</title>
+      <link href="/posts/7417.html"/>
+      <url>/posts/7417.html</url>
+      
+        <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>互联网业务兴起之后，海量用户加上海量数据的特点，单个数据库服务器已经难以满足业务发展的需求，必须考虑数据库集群的方式来提升性能。</p><p>高性能数据库集群的特点：</p><ol><li><p>读写分离。</p></li><li><p>数据库分片。</p></li></ol><h2 id="读写分离架构"><a href="#读写分离架构" class="headerlink" title="读写分离架构"></a>读写分离架构</h2><p>读写分离的原理：就是将数据库的读写操作分散到不同的节点上。下面是其基本的架构图：</p><p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/202310190110627.png" alt="202310190110627.png"></p><p>读写分离的基本实现：</p><ul><li><p>主库负责处理事务性的增删改操作，从库负责处理查询操作，这样能够有效的避免由数据更新导致的行锁，使得整个系统的查询性能得到极大的改善。</p></li><li><p>读写分离是根据 SQL 语义的分析，将读操作和写操作分别路由到主库和从库的。</p></li><li><p>通过一主多从的配置方式，可以将查询请求均匀的分散到多个数据副本，能够进一步的提升系统的处理能力。</p></li><li><p>使用多主多从的配置方式，不但能够提升系统的吞吐量，还能够提升系统的可用性（甚至任何一个数据库宕机或者磁盘损坏的情况下依然不影响系统的正常运行）。</p></li></ul><p>下图展示了根据业务需求，将用户表的写操作和读操作路由到不同的数据库的方案：</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/202310190110027.png" alt="202310190110027.png" style="zoom:67%;" /><h2 id="数据库分片架构"><a href="#数据库分片架构" class="headerlink" title="数据库分片架构"></a>数据库分片架构</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p>读写分离的问题：读写分离可以解决海量用户并发访问的压力，因为读写分离将并发的读操作和写操作分散到了不同的数据库中，从而分散了单台数据库并发读写操作的压力，但是并没有分散存储压力，为了满足业务数据存储的需求，就需要将存储分散到多台数据库服务器上。</p><p>数据分片：将存放在单一数据库中的数据分散的存放到多个数据库或表中，以达到提升性能瓶颈以及可用性的效果。数据分片的有效手段是对关系型数据库进行分库分表。数据分片的拆分方式又分为 垂直分片 和 水平分片。</p><h4 id="垂直分片之垂直分库"><a href="#垂直分片之垂直分库" class="headerlink" title="垂直分片之垂直分库"></a>垂直分片之垂直分库</h4><p>按照业务拆分的方式称为垂直分片，又称为纵向拆分，它的核心理念是专库专用。在拆分之前，一个数据库由多个数据表构成，每个表对应着不同的业务。而拆分之后，则是按照业务将表进行归类，分布到不同的数据库中，从而将压力分散至不同的数据库中。</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020210443294.png" alt="image-20231020210443294" style="zoom:67%;" /><p>下图展示了根据业务需求，将用户表和订单表垂直分片到不同的数据库的方案：</p> <img src="https://qiniu.chengke.net/mysql/202310190110243.png" alt="img" style="zoom: 67%;" /><p>垂直拆分可以缓解数据量和访问量带来的问题，但是无法根治。如果垂直拆分之后，表中的数据量依然超过单节点所能承载的阈值，则需要水平分片来进一步处理。</p><blockquote><p>阿里巴巴 Java 开发手册：</p><p>【推荐】单表行数超过 500 万行或者单表容量超过 2GB，才推荐进行分库分表。<br>说明：如果预计三年后的数据量根本达不到这个级别，请不要在创建表时就分库分表。</p></blockquote><h4 id="垂直分片之垂直分表"><a href="#垂直分片之垂直分表" class="headerlink" title="垂直分片之垂直分表"></a>垂直分片之垂直分表</h4><p>垂直分表适合于将表中某些不常用的列，或者占用了大量空间的列拆分出去。</p><p>假设我们是一个婚恋网络，用户在筛选其他用户的时候，主要使用 age 和 sex 两个字段进行查询，而 nickname 和 description 两个字段主要用于展示，一般不会在业务查询中使用到。而 description 字段本身占用空间比较大，因为我们可以将 nickname 和 description 两个字段独立到另外一张包中，这样在查询 age 和 sex 的时候，就能带来一定的性能提升。</p><p>垂直分表引入的复杂性主要体现在表操作的数量的增加。比如，原来只要一次查询就可以获取 name、age、nickname、description ，现在需要两次查询：一次获取 name、age、sex，另外一次查询获取 nickname、description。并且新增的时候也可能需要维护两次。</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020205908986.png" alt="image-20231020205908986" style="zoom: 67%;" /><blockquote><p>注意：水平分表适合表行数特别大的表，水平分表属于水平分片。</p></blockquote><h4 id="水平分片"><a href="#水平分片" class="headerlink" title="水平分片"></a>水平分片</h4><p>水平分片又称为横向拆分，相对于垂直分片，它不再将数据根据业务逻辑分类，而是通过某个字段（或某几个字段），根据某种规则将数据分散到多个库或表中，每个分片仅包含数据的一部分，比如：根据主键分片，偶数主键的记录放入 0 库（或表），奇数主键的记录放入 1 库（或表），如下图所示：</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020210057411.png" alt="image-20231020210057411" style="zoom: 67%;" /><blockquote><p>注意：单表进行切分后，是否将多个表分散在不同的数据库服务器中，可以根据实际切分的效果来确定。</p></blockquote><p>水平分表：单表切分为多表后，新的表即使在同一个数据库服务器中，也可能带来客观的性能提升；如果性能能够满足业务需要，可以不拆分到多台数据库服务器，毕竟业务分库会引入很多复杂性。</p><p>水平分库：如果单表拆分为多表后，单台服务器依然无法满足性能要求，那么就需要将多个表分散在不同的数据库服务器总。</p><h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><p>读写分离和数据分片具体的实现方式一般有两种：</p><p>① 程序代码封装。</p><p>② 中间件封装。</p><h3 id="程序代码封装"><a href="#程序代码封装" class="headerlink" title="程序代码封装"></a>程序代码封装</h3><p>程序代码封装指的是在代码中抽象一个 数据访问层（或中间层封装），实现读写操作分离和数据库服务器连接的管理。</p><p>其基本架构是：以读写分离为例</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020210259318.png" alt="image-20231020210259318" style="zoom: 80%;" /><h3 id="中间件封装"><a href="#中间件封装" class="headerlink" title="中间件封装"></a>中间件封装</h3><p>中间件封装指的是 独立一套系统 出来，实现读写操作分离和数据库服务器连接的管理。对于业务服务器来说，访问中间件和访问数据库没有什么区别，在业务服务器看来，中间件就是一个数据库服务器。</p><p>其基本架构是：以读写分离为例</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020210343563.png" alt="image-20231020210343563" style="zoom:67%;" /><h3 id="常见解决方案"><a href="#常见解决方案" class="headerlink" title="常见解决方案"></a>常见解决方案</h3><p>Apache 的 Shardingsphere：程序级别和中间件级别。</p><p>Mycat：中间件级别。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> MySQL </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> MySQL </tag>
+            
+            <tag> ShardingSphere </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>基于Redis实现分布式锁</title>
+      <link href="/posts/11354.html"/>
+      <url>/posts/11354.html</url>
+      
+        <content type="html"><![CDATA[<p>分布式锁是一种跨进程实现对共享资源互斥访问的机制。分布式锁的实现方式有很多种，主流的有基于Zookeeper和Redis，本文要介绍的是基于Redis实现分布锁，从最基本的方式到最完整的方式，循序渐进。</p><h2 id="SETNEX"><a href="#SETNEX" class="headerlink" title="SETNEX"></a>SETNEX</h2><p>setnx（set if not exists) 命令是Redis提供的一种原子操作，其效果是当key不存在的时候，才会执行成功。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx k1 v1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx k1 v1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure><p>基于此命令实现分布式锁的思路是：</p><ol><li>当线程想要访问共享资源时，先执行setnx，key为固定值，value为任意值；</li><li>如果返回结果为1，则代表成功获取锁，线程访问共享资源；</li><li>如果返回结果为0，则代表，没有获取锁，线程休眠指定时间，再次尝试获取锁；</li><li>线程访问共享资源结束后，执行del,释放锁</li></ol><p>代码演示：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate redisTemplate;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LOCK_KEY</span> <span class="operator">=</span> <span class="string">&quot;lock&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/test1&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test1</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// 尝试获取锁</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">flag</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(LOCK_KEY, <span class="string">&quot;aa&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">            <span class="comment">// 获取锁成功，执行对共享资源的访问的业务代码</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 此处省略业务代码...</span></span><br><span class="line">        </span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            redisTemplate.delete(LOCK_KEY);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 未获取锁，休眠一会，再次尝试获取锁</span></span><br><span class="line">            Thread.sleep(<span class="number">500</span>);</span><br><span class="line">            <span class="built_in">this</span>.test1();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>思考一下这种最基本的实现方式存在的问题。当业务代码出现异常时，是不是就无法执行释放锁的操作，后果就是其他线程一直尝试获取锁，一直失败。</p><p>解决方案很简单，我们在获取锁的时候，设置锁的过期时间。</p><h2 id="SET（NX，EX）"><a href="#SET（NX，EX）" class="headerlink" title="SET（NX，EX）"></a>SET（NX，EX）</h2><p>set(nx,ex)也是Redis提供的一个原子性操作，它与上面的命令的区别在于，它可以设置key的过期时间。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1 nx ex 10</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1 nx ex 10</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure><p>基于此命令实现分布式锁的思路：</p><ol><li>当线程想要访问共享资源时，先执行<code>set k1 v1 nx ex 10</code>，并设置过期时间；</li><li>如果返回结果为OK，则代表成功获取锁，线程访问共享资源；</li><li>如果返回结果为(nil)，则代表，没有获取锁，线程休眠指定时间，再次尝试获取锁；</li><li>线程访问共享资源结束后，执行del,释放锁</li></ol><p>因为我们设置了过期时间，所以即使线程在执行业务代码时出现异常，导致没有主动释放锁，锁到了过期时间也会自动释放。</p><p>代码演示：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/test1&quot;)</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test1</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">       <span class="comment">// 尝试获取锁,并设置锁的过期时间为5秒</span></span><br><span class="line">       <span class="type">Boolean</span> <span class="variable">flag</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(LOCK_KEY, <span class="string">&quot;aa&quot;</span>, <span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line">       <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">           <span class="comment">// 获取锁成功，执行对共享资源的访问的业务代码</span></span><br><span class="line"></span><br><span class="line">           <span class="comment">// 此处省略业务代码...</span></span><br><span class="line"></span><br><span class="line">           <span class="comment">// 释放锁</span></span><br><span class="line">           redisTemplate.delete(LOCK_KEY);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="comment">// 未获取锁，休眠一会，再次尝试获取锁</span></span><br><span class="line">           Thread.sleep(<span class="number">500</span>);</span><br><span class="line">           <span class="built_in">this</span>.test1();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure><p>这种方式也存在问题。我们设置了锁的过期时间是5秒，假如第一个线程获取到锁，执行业务代码时远程调用了其他微服务，由于网络慢等原因导致执行业务代码花费了7秒钟，那么在5秒时，锁被自动释放了，此时第二个线程可以获取到锁并执行业务代码，这是不符合预期的，无法实现对共享资源的互斥访问，那么在7秒的时候，第一个线程执行完业务代码并释放锁，此时释放的锁却是第二个线程的，以此类推，第三个线程可能释放第二个线程的锁，</p><h2 id="SET（NX，EX）-唯一标识"><a href="#SET（NX，EX）-唯一标识" class="headerlink" title="SET（NX，EX）+ 唯一标识"></a>SET（NX，EX）+ 唯一标识</h2><h2 id="SET（NX，EX）-唯一标识-lua脚本"><a href="#SET（NX，EX）-唯一标识-lua脚本" class="headerlink" title="SET（NX，EX） + 唯一标识 + lua脚本"></a>SET（NX，EX） + 唯一标识 + lua脚本</h2><h2 id="Redisson"><a href="#Redisson" class="headerlink" title="Redisson"></a>Redisson</h2>]]></content>
+      
+      
+      <categories>
+          
+          <category> Redis </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 分布式锁 </tag>
+            
+            <tag> Redis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>CAP理论</title>
+      <link href="/posts/44851.html"/>
+      <url>/posts/44851.html</url>
+      
+        <content type="html"><![CDATA[<h2 id="CAP-理论"><a href="#CAP-理论" class="headerlink" title="CAP 理论"></a>CAP 理论</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>CAP 理论（CAP theorem）又被称作布鲁尔理论（Brewer’s theorem），是加州大学伯克利分校的计算机科学家埃里克·布鲁尔（Eric Brewer）在 2000 年的 ACM PODC 上提出的一个猜想。对于设计分布式系统的架构师来说，CAP 是必须掌握的理论。</p><p>在一个分布式系统中，当涉及到读写操作的时候，只能保证一致性（Consistency）、可用性（Availability）、分区容错性（Partition Tolerance）三者中的两个，另一个必须被牺牲。</p><p>C 就是一致性（Consistency ）：对某个指定的客户端来说，读操作保证能够返回最新的写操作结果。</p><p>A 就是可用性（Availability）：非故障的节点在合理的时间内返回合理的响应（不是错误和超时的响应），有可能不是最新的数据，而是旧的数据。</p><p>P 就是分区容错性（Partition Tolerance）：当出现网络分区后，系统能够继续 “履行职责”。</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/202310190110812.jpeg" alt="202310190110812.jpeg" style="zoom: 80%;" /><h3 id="CAP-的理解"><a href="#CAP-的理解" class="headerlink" title="CAP 的理解"></a>CAP 的理解</h3><p>CAP 是描述性理论，不是工程理论，它舍弃了很多现实世界中的问题，比如：网络波动、丢包、节点处理速度不一致等问题。</p><p>在一个分布式系统中，节点组成的网络本来应该是互相连通的，但是因为一些故障（网络波动、丢包、节点处理速度不一样等），使得有些节点之间不能互通，那么整个网络就分成了几块区域。数据就散布在了这些不连通的区域中，这就是分区。</p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231020210507215.png" alt="image-20231020210507215" style="zoom: 80%;" /><p>当一个数据项只在一个节点中保存，那么分区出现后，和这个节点不连通的部分就访问不到这个数据了，这个时候分区是无法容忍的。</p><p>提高分区容忍性的办法就是将一个数据项复制到多个节点上，那么出现分区之后，这一数据项就有可能分布到各个区里面，那么容忍性就提高了；换言之，任意客户端（如：Java 等）连接到各个节点的服务器上都有数据了，虽然可能是旧数据，就像上图中的 Redis 一样。</p><p>但是，要将数据复制到多个节点，就会带来一致性的问题，就是多个节点上面的数据有可能不一致。如果要一致，每次写操作都需要等待全部节点成功（强一致性，在现在的分布式系统中，想保证实时强一致性几乎不太可能，追求的是最终一致性），其中最差的方案（性能最差）就是写的时候加锁，写完之后释放锁；但是在各个节点在写的时候，如果有客户端又发送了写请求，就会出现可用性问题。那么什么是可用性问题？如果一个客户端在合理的时间内和服务器进行通信，一直死活连不上，或者一直报超时，甚至是 ERROR，客户端就会觉得服务器可能已经宕机。</p><p>总体来说，数据存在的节点越多，分区容忍性就越高，但是复制更新的数据就越多，一致性就难以保证。为了保证一致性，更新所有节点所需要花费的时间就越长，可用性就会降低。</p><blockquote><p>注意：</p><p>C（一致性）就是客户端是否能拿到最新数据，不是所谓的强一致性。<br>A（可用性）就是允许客户端拿不到最近的数据，但是可以是旧的数据；</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> 微服务 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CAP </tag>
+            
+            <tag> 微服务 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>简单谈谈锁</title>
+      <link href="/posts/27218.html"/>
+      <url>/posts/27218.html</url>
+      
+        <content type="html"><![CDATA[<h2 id="锁的分类"><a href="#锁的分类" class="headerlink" title="锁的分类"></a>锁的分类</h2><p>从各种不同角度出发，可以对Java中的锁进行分类，这些分类并不是互斥的，也就是多个类型可以并存，有可能一个锁同时属于两种类型，比如ReentrantLock既是互斥锁，又是可重入锁。</p><p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/20231003_1696305899723.jpg" alt="20231003_1696305899723.jpg"></p><h2 id="悲观锁VS乐观锁"><a href="#悲观锁VS乐观锁" class="headerlink" title="悲观锁VS乐观锁"></a>悲观锁VS乐观锁</h2><h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>如果我不锁住这个资源，别人就会来争抢，就会造成数据结果错误，所以每次悲观锁为了确保结果的正确性，会在每次获取并修改数据时，把数据锁住，让别人无法访问该数据，这样就可以确保数据内容万无一失。</p><p>Java中悲观锁的实现就是synchronized和Lock相关类。</p><h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p>认为自己在处理操作的时候不会有其他线程来干扰，所以并不会锁住被操作对象。在提交更新的时候，去对比在我修改的期间数据有没有被其他人改变过，如果没被改变过，就说明真的是只有我自己在操作，那我就正常去修改数据。</p><p>如果数据和我一开始拿到的不一样了，说明其他人在这段时间内改过数据，那我就不能继续刚才的更新数据过程了，我会选择报错、重试等策略。</p><p>乐观锁的实现一般都是利用CAS算法来实现的。</p><h3 id="开销对比"><a href="#开销对比" class="headerlink" title="开销对比"></a>开销对比</h3><p>悲观锁的原始开销要高于乐观锁，但是特点是一劳永逸，临界区持锁时间就算越来越差，也不会对互斥锁的开销造成影响。<br>相反，虽然乐观锁一开始的开销比悲观锁小，但是如果自旋时间很长或者不停重试，那么消耗的资源也会越来越多。</p><h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>悲观锁：适合并发写入多的情况，适用于临界区持锁时间比较长的情况，悲观锁可以避免大量的无用自旋等消耗，</p><p>典型情况:</p><ul><li>临界区有IO操作</li><li>临界区代码复杂或循环量大</li><li>临界区竞争非常激烈</li></ul><p>乐观锁：适合并发写入少，大部分是读取的场景，不加锁的能让读取性能大幅提高。</p><h2 id="公平锁VS非公平锁"><a href="#公平锁VS非公平锁" class="headerlink" title="公平锁VS非公平锁"></a>公平锁VS非公平锁</h2><p>公平指的是按照线程请求的顺序，来分配锁，非公平指的是不完全按照请求的顺序，在一定情况下，可以插队。</p><table><thead><tr><th></th><th>优势</th><th>劣势</th></tr></thead><tbody><tr><td>公平锁</td><td>各线程公平平等，每个线程在等待一段时间后，总有执行的机会</td><td>更慢，吞吐量小</td></tr><tr><td>非公平锁</td><td>更快，吞吐量大</td><td>有可能产生线程饥饿，也就是某些线程长时间内始终得不到执行</td></tr></tbody></table><h2 id="共享锁VS排他锁"><a href="#共享锁VS排他锁" class="headerlink" title="共享锁VS排他锁"></a>共享锁VS排他锁</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>共享锁，又称为读锁，获得共享锁之后，可以查看但无法修改和删除数据，其他线程此时也可以获取到共享锁，也可以查看但无法修改和删除数据。</p><p>排他锁，又称为独占锁、独享锁。</p><p>共享锁和排它锁的典型是读写锁ReentrantReadWriteLock，其中读锁是共享锁，写锁是独享锁。</p><h3 id="读写锁"><a href="#读写锁" class="headerlink" title="读写锁"></a>读写锁</h3><p>读写锁的作用</p><p>在没有读写锁之前，我们假设使用ReentrantLock,那么虽然我们保证了线程安全，但是也浪费了一定的资源。多个读操作同时进行，并没有线程安全问题<br>在读的地方使用读锁，在写的地方使用写锁，灵活控制，如果没有写锁的情况下，读是无阻塞的提高了程序的执行效率。</p><p>读写锁规则</p><ul><li>多个线程只申请读锁，都可以申请到。</li><li>如果有一个线程已经占用了读锁，则此时其他线程如果要申请写锁，则申请写锁的线程会一直等待释放读锁。</li><li>如果有一个线程已经占用了写锁，则此时其他线程如果申请写锁或者读锁，则申请的线程会一直等待释放写锁。</li><li>一句话总结：要么是一个或多个线程同时有读锁，要么是一个线程有写锁，但是两者不会同时出现（要么多读，要么一写）。</li></ul><p>换一种思路更容易理解：读写锁只是一把锁，可以通过两种方式锁定读锁定和写锁定。读写锁可以同时被一个或多个线程读锁定，也可以被单一线程写锁定。但是永远不能同时对这把锁进行读锁定和写锁定。</p><blockquote><p>这里是把“获取写锁”理解为“把读写锁进行写锁定”，相当于是换了一种思路，不过原则是不变的，就是要么是一个或多个线程同时有读锁（同时读锁定），要么是一个线程有写锁（进行写锁定），但是两者不会同时出现。</p></blockquote><h2 id="自旋锁VS阻塞锁"><a href="#自旋锁VS阻塞锁" class="headerlink" title="自旋锁VS阻塞锁"></a>自旋锁VS阻塞锁</h2><h3 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h3><p>阻塞或唤醒一个Java线程需要操作系统切换CPU状态来完成，这种状态转换需要耗费处理器时间。如果同步代码块中的内容过于简单，状态转换消耗的时间有可能比用户代码执行的时间还要长。</p><p>在许多场景中，同步资源的锁定时间很短，为了这一小段时间去切换线程，线程挂起和恢复现场的花费可能会让系统得不偿失。</p><p>如果物理机器有多个处理器，能够让两个或以上的线程同时并行执行，我们就可以让后面那个请求锁的线程不放弃CPU的执行时间，看看持有锁的线程是否很快就会释放锁，而为了让当前线程“稍等一下”，我们需让当前线程进行自旋，如果在自旋完成后前面锁定同步资源的线程已经释放了锁，那么当前线程就可以不必阻塞而是直接获取同步资源，从而避免切换线程的开销。这就是<strong>自旋锁</strong>。</p><p>阻塞锁和自旋锁相反，阻塞锁如果遇到没拿到锁的情况，会直接把线程阻塞，直到被唤醒</p><p><strong>自旋锁的缺点</strong></p><p>如果锁被占用的时间很长，那么自旋的线程只会白浪费处理器资源。在自旋的过程中，一直消耗cpu，所以虽然自旋锁的起始开销低于悲观锁，但是随着自旋时间的增长，开销也是线性增长的。</p><p><strong>自旋锁的适用场景</strong></p><p>自旋锁一般用于多核的服务器，在并发度不是特别高的情况下，比阻塞锁的效率高。<br>另外，自旋锁适用于临界区比较短小的情况，否则如果临界区很大（线程一旦拿到锁，很久以后才会释放），不太合适。</p><h2 id="可中断锁"><a href="#可中断锁" class="headerlink" title="可中断锁"></a>可中断锁</h2><p>在Java中，synchronized就不是可中断锁，而lock是可中断锁，因为<code>tryLock(time)</code>和<code>lockInterruptibly</code>都能响应中断。</p><p>如果某一线程A正在执行锁中的代码，另一线程B正在等待获取该锁可能由于等待时间过长，线程B不想等待了，想先处理其他事情我们可以中断它，这种就是可中断锁。</p><h2 id="Lock接口"><a href="#Lock接口" class="headerlink" title="Lock接口"></a>Lock接口</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>锁是一种工具，用于控制对共享资源的访问。<br>Lock和synchronized，这两个是最常见的锁，它们都可以达到线程安全的目的，但是在使用上和功能上又有较大的不同。Lock并不是用来代替synchronized的，而是当使用synchronized不合适或不足以满足要求的时候，来提供高级功能的。</p><h3 id="synchronized不足"><a href="#synchronized不足" class="headerlink" title="synchronized不足"></a>synchronized不足</h3><ul><li>效率低。锁的释放情况少、试图获得锁时不能设定超时、不能中断一个正在试图获得锁的线程。</li><li>不够灵活。加锁和释放的时机单一，每个锁仅有单一的条件（某个对象)，可能是不够的。</li><li>无法知道是否成功获取到锁。</li></ul><h3 id="Lock获取锁方法"><a href="#Lock获取锁方法" class="headerlink" title="Lock获取锁方法"></a>Lock获取锁方法</h3><p>在Lock中声明了四个方法来获取锁：</p><ul><li>lock()</li><li>tryLock</li><li>tryLock(long time,TimeUnit unit)</li><li>lockInterruptibly()</li></ul><p>那么这四个方法有何区别呢？</p><p>lock()就是最普通的获取锁。如果锁已被其他线程获取，则进行等待; Lock不会像synchronized一样在异常时自动释放锁,因此最佳实践是，在finally中释放锁，以保证发生异常时锁一定被释放;lock()方法不能被中断，这会带来很大的隐患：一旦陷入死锁Iock()就会陷入永久等待。</p><p>tryLock()用来尝试获取锁，如果当前锁没有被其他线程占用则获取成功，则返回true,否则返回false，代表获取锁失败。相比于lock()，这样的方法显然功能更强大了，我们可以根据是否能获取到锁来决定后续程序的行为。该方法会立即返回，即便在拿不到锁时不会一直在那等。</p><p>tryLock(long time, TimeUnit unit)添加了超时时间。</p><p>lockInterruptibly()相当于tryLock(long time, TimeUnit unit)，把超时时间设置为无限。在等待锁的过程中，线程可以被中断。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 锁 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Java </tag>
+            
+            <tag> 锁 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
