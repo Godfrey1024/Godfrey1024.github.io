@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>使用Github托管项目 | 晴耕雨读</title><meta name="author" content="Godfrey"><meta name="copyright" content="Godfrey"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="GitHub托管本地项目Git连接远程仓库时支持两种协议，SSH和HTTPS。    SSH连接生成SSH秘钥对在本地打开GitBash窗口，执行以下命令： 1$ ssh-keygen -t rsa -C &quot;youremail@example.com&quot;       ​	生成成功的话，在C盘用户目录下会有一个名为.ssh的目录，里面是ssh的公钥和私钥文件。 ​	 配置公钥到Gi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Github托管项目">
+<meta property="og:url" content="https://deepinfo.online/posts/60316.html">
+<meta property="og:site_name" content="晴耕雨读">
+<meta property="og:description" content="GitHub托管本地项目Git连接远程仓库时支持两种协议，SSH和HTTPS。    SSH连接生成SSH秘钥对在本地打开GitBash窗口，执行以下命令： 1$ ssh-keygen -t rsa -C &quot;youremail@example.com&quot;       ​	生成成功的话，在C盘用户目录下会有一个名为.ssh的目录，里面是ssh的公钥和私钥文件。 ​	 配置公钥到Gi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg">
+<meta property="article:published_time" content="2022-04-03T12:11:10.000Z">
+<meta property="article:modified_time" content="2023-10-23T04:59:26.807Z">
+<meta property="article:author" content="Godfrey">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://deepinfo.online/posts/60316.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用Github托管项目',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-23 12:59:26'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="晴耕雨读"><img class="site-icon" src="/img/favicon.png"/><span class="site-name">晴耕雨读</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用Github托管项目<a class="post-edit-link" href="null_posts/使用Github托管项目.md" title="编辑" target="_blank"><i class="fas fa-pencil-alt"></i></a></h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-03T12:11:10.000Z" title="发表于 2022-04-03 20:11:10">2022-04-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-10-23T04:59:26.807Z" title="更新于 2023-10-23 12:59:26">2023-10-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Git%E4%BD%BF%E7%94%A8/">Git使用</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用Github托管项目"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="GitHub托管本地项目"><a href="#GitHub托管本地项目" class="headerlink" title="GitHub托管本地项目"></a>GitHub托管本地项目</h2><p>Git连接远程仓库时支持两种协议，SSH和HTTPS。</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021161413637.png" alt="image-20231021161413637" style="zoom:67%;" />
+
+<h3 id="SSH连接"><a href="#SSH连接" class="headerlink" title="SSH连接"></a>SSH连接</h3><h4 id="生成SSH秘钥对"><a href="#生成SSH秘钥对" class="headerlink" title="生成SSH秘钥对"></a>生成SSH秘钥对</h4><p>在本地打开GitBash窗口，执行以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ssh-keygen -t rsa -C <span class="string">&quot;youremail@example.com&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+   <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021161937546.png" alt="image-20231021161937546" style="zoom: 80%;" />
+
+<p>​	生成成功的话，在C盘用户目录下会有一个名为.ssh的目录，里面是ssh的公钥和私钥文件。</p>
+<p>​	<img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021162238891.png" alt="image-20231021162238891"></p>
+<h4 id="配置公钥到Github账户"><a href="#配置公钥到Github账户" class="headerlink" title="配置公钥到Github账户"></a>配置公钥到Github账户</h4><p>第一步：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021162724854.png" alt="image-20231021162724854" style="zoom: 50%;" />
+
+<p>第二步：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021163020266.png" alt="image-20231021163020266" style="zoom:67%;" />
+
+<h4 id="配置本地项目"><a href="#配置本地项目" class="headerlink" title="配置本地项目"></a>配置本地项目</h4><p>第一步,查看当前git的远程仓库版本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote -v</span></span><br></pre></td></tr></table></figure>
+
+<p>此时若什么都没有显示说明，git无远程仓库。</p>
+<p>第二步，添加ssh协议的远程仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote add 名称 远程仓库ssh地址</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">名称任意，远程仓库我们一般命名为<span class="string">&quot;origin&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">远程仓库ssh地址，我们直接从Github粘贴过来，防止写错</span></span><br></pre></td></tr></table></figure>
+
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231021163714702.png" alt="image-20231021163714702" style="zoom:67%;" />
+
+<p>再次查看，此时本地项目已经和远程仓库关联起来了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote -v</span></span><br><span class="line">origin  git@github.com:Godfrey1024/Godfrey1024.github.io.git</span><br><span class="line">origin  git@github.com:Godfrey1024/Godfrey1024.github.io.git</span><br></pre></td></tr></table></figure>
+
+<p>ssh连接的好处是每次提交代码时，不需要重复来回输入用户名和密码。</p>
+<p>有的时候拉取合并代码的时候，会报出如下错误：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git pull origin master</span></span><br><span class="line">ssh: connect to host github.com port 22: Connection refused</span><br><span class="line">fatal: Could not read from remote repository.</span><br></pre></td></tr></table></figure>
+
+<p>大概率是由于当前网络的原因，当前网络禁止SSH协议的22端口，尤其是公司企业网络。那么只能换一种连接进行合并本地仓库了。</p>
+<h3 id="HTTPS连接"><a href="#HTTPS连接" class="headerlink" title="HTTPS连接"></a>HTTPS连接</h3><p>依然是先查看当前远程仓库使用的那种协议连接：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote -v</span></span><br><span class="line">origin  git@github.com:Godfrey1024/Godfrey1024.github.io.git</span><br><span class="line">origin  git@github.com:Godfrey1024/Godfrey1024.github.io.git</span><br></pre></td></tr></table></figure>
+
+<p>移除掉远程仓库的配置:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote <span class="built_in">rm</span> origin</span></span><br></pre></td></tr></table></figure>
+
+<p>重新添加新的远程仓库，以https的形式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin https://github.com/Godfrey1024/Godfrey1024.github.io.git</span><br></pre></td></tr></table></figure>
+
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231023124842105.png" alt="image-20231023124842105" style="zoom:67%;" />
+
+<p>完成以上切换操作，其实问题就已经解决了。</p>
+<p>再次尝试pull代码，可以看到已经成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git pull origin master</span></span><br><span class="line">remote: Counting objects: 21, done.</span><br><span class="line">remote: Compressing objects: 100% (8/8), done.</span><br><span class="line">Unpacking objects: 100% (21/21), done.</span><br><span class="line">remote: Total 21 (delta 5), reused 21 (delta 5), pack-reused 0</span><br><span class="line">From https://github.com/Godfrey1024/Godfrey1024.github.io</span><br><span class="line"> * branch            master     -&gt; FETCH_HEAD</span><br><span class="line"> * [new branch]      master     -&gt; origin/master</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://deepinfo.online">Godfrey</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://deepinfo.online/posts/60316.html">https://deepinfo.online/posts/60316.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://deepinfo.online" target="_blank">晴耕雨读</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Git/">Git</a></div><div class="post_share"></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/44851.html" title="CAP理论"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/4bf5d7.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CAP理论</div></div></a></div><div class="next-post pull-right"><a href="/posts/44073.html" title="JDK8新特性-Lamda表达式"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/4c1b70.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">JDK8新特性-Lamda表达式</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Godfrey</div><div class="author-info__description">这是我的博客网站</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#GitHub%E6%89%98%E7%AE%A1%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.</span> <span class="toc-text">GitHub托管本地项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.1.</span> <span class="toc-text">SSH连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E6%88%90SSH%E7%A7%98%E9%92%A5%E5%AF%B9"><span class="toc-number">1.1.1.</span> <span class="toc-text">生成SSH秘钥对</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%85%AC%E9%92%A5%E5%88%B0Github%E8%B4%A6%E6%88%B7"><span class="toc-number">1.1.2.</span> <span class="toc-text">配置公钥到Github账户</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.1.3.</span> <span class="toc-text">配置本地项目</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.2.</span> <span class="toc-text">HTTPS连接</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/7417.html" title="MySQL分库分表">MySQL分库分表</a><time datetime="2023-03-04T12:11:16.000Z" title="发表于 2023-03-04 20:11:16">2023-03-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44851.html" title="CAP理论">CAP理论</a><time datetime="2023-02-01T13:40:07.000Z" title="发表于 2023-02-01 21:40:07">2023-02-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/60316.html" title="使用Github托管项目">使用Github托管项目</a><time datetime="2022-04-03T12:11:10.000Z" title="发表于 2022-04-03 20:11:10">2022-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44073.html" title="JDK8新特性-Lamda表达式">JDK8新特性-Lamda表达式</a><time datetime="2021-02-14T11:44:07.000Z" title="发表于 2021-02-14 19:44:07">2021-02-14</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/64503.html" title="JDK8新特性-接口默认方法">JDK8新特性-接口默认方法</a><time datetime="2021-02-14T11:40:07.000Z" title="发表于 2021-02-14 19:40:07">2021-02-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Godfrey</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
