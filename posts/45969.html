@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>熟悉的陌生类-Object | 晴耕雨读</title><meta name="author" content="Godfrey"><meta name="copyright" content="Godfrey"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="概述Object是java所有类的基类，是整个类继承结构的顶端，也是最抽象的一个类。大家天天都在使用toString()、equals()、hashCode()、wait()、notify()、getClass()等方法，或许都没有意识到是Object类的方法，也没有去看Object类中还有哪些方法以及思考为什么这些方法要放到 Object中。本篇就每个方法具体功能、重写规则以及自己的一些理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="熟悉的陌生类-Object">
+<meta property="og:url" content="https://deepinfo.online/posts/45969.html">
+<meta property="og:site_name" content="晴耕雨读">
+<meta property="og:description" content="概述Object是java所有类的基类，是整个类继承结构的顶端，也是最抽象的一个类。大家天天都在使用toString()、equals()、hashCode()、wait()、notify()、getClass()等方法，或许都没有意识到是Object类的方法，也没有去看Object类中还有哪些方法以及思考为什么这些方法要放到 Object中。本篇就每个方法具体功能、重写规则以及自己的一些理解。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg">
+<meta property="article:published_time" content="2020-04-03T12:11:10.000Z">
+<meta property="article:modified_time" content="2023-10-26T01:33:30.867Z">
+<meta property="article:author" content="Godfrey">
+<meta property="article:tag" content="Java基础">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://deepinfo.online/posts/45969.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '熟悉的陌生类-Object',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-26 09:33:30'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="晴耕雨读"><img class="site-icon" src="/img/favicon.png"/><span class="site-name">晴耕雨读</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">熟悉的陌生类-Object<a class="post-edit-link" href="null_posts/熟悉的陌生类-Object.md" title="编辑" target="_blank"><i class="fas fa-pencil-alt"></i></a></h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2020-04-03T12:11:10.000Z" title="发表于 2020-04-03 20:11:10">2020-04-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="熟悉的陌生类-Object"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><strong>Object是java所有类的基类，是整个类继承结构的顶端，也是最抽象的一个类</strong>。大家天天都在使用<code>toString()、equals()、hashCode()、wait()、notify()、getClass()</code>等方法，或许都没有意识到是<code>Object</code>类的方法，也没有去看<code>Object</code>类中还有哪些方法以及思考为什么这些方法要放到 <code>Object</code>中。本篇就每个方法具体功能、重写规则以及自己的一些理解。</p>
+<h2 id="方法详解"><a href="#方法详解" class="headerlink" title="方法详解"></a>方法详解</h2><p><code>Object</code>中含有：<code>registerNatives()、getClass()、hashCode()、equals()、clone()、toString()、notify()、notifyAll()、wait(long)、wait(long,int)、wait()、finalize()</code> 共<strong>十二个方法</strong>。这个顺序是按照<code>Object</code>类中定义方法的顺序列举的，下面我也会按照这个顺序依次进行讲解。</p>
+<h3 id="registerNatives"><a href="#registerNatives" class="headerlink" title="registerNatives()"></a>registerNatives()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">registerNatives</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    registerNatives();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>从名字上理解，这个方法是注册<code>native</code>方法</strong>（本地方法，由<code>JVM</code>实现，底层是<code>C/C++</code>实现的）**向谁注册呢？当然是向<code>JVM</code>**，当有程序调用到<code>native</code>方法时， <code>JVM</code>才好去找到这些底层的方法进行调用。</p>
+<blockquote>
+<p><code>Object</code>中的<code>native</code>方法，以及使用<code>registerNatives()</code>向<code>JVM</code>进行注册相关的知识属于<code>JNI</code>的范畴，有兴趣的可自行查阅。</p>
+</blockquote>
+<p><strong>为什么要使用静态方法，还要放到静态块中呢？</strong></p>
+<p>我们知道在类初始化的时候，会依次将从父类到本类的类变量及类初始化块中的类变量及方法按照定义顺序放到<code>&lt;clinit&gt;</code>方法中，这样可以保证父类的类变量及方法的初始化一定先于子类。所以当子类调用相应<code>native</code>方法，比如计算<code>hashCode</code>时，一定可以保证能够调用到<code>JVM</code>的 <code>native</code>方法。</p>
+<h3 id="getClass"><a href="#getClass" class="headerlink" title="getClass()"></a>getClass()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> Class&lt;?&gt; getClass();</span><br></pre></td></tr></table></figure>
+
+<p>这是一个<code>public</code>的方法，我们可以直接通过对象调用。</p>
+<p>类加载的第一阶段类的加载就是将<code>.class</code>文件加载到内存，并生成一个<code>java.lang.Class</code>对象的过程。 <code>getClass()</code>方法就是获取这个对象，这是当前类的对象在运行时类的所有信息的集合。这个方法是反射三种方式之一。</p>
+<h3 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode()"></a>hashCode()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个<code>public</code>的方法，所以子类可以重写它。这个方法返回当前对象的<code>hashCode</code>值，这个值是一个整数范围内的 <code>（-2^31~2^31-1）</code>数字。</p>
+<p>对于 <code>hashCode</code>有以下几点约束:</p>
+<ol>
+<li>在Java应用程序执行期间，在对同一对象多次调用<code>hashCode</code> 方法时，必须一致地返回相同的整数，前提是将对象进行<code>equals</code>比较时所用的信息没有被修改；</li>
+<li>如果两个对象<code>x.equals(y)</code>方法返回<code>true</code>，则 <code>x</code>、<code>y</code>这两个对象的<code>hashCode</code>必须相等;</li>
+<li>如果两个对象<code>x.equals(y)</code>方法返回<code>false</code>，则<code>x</code>、 <code>y</code>这两个对象的<code>hashCode</code>可以相等也可以不等。但是，为不相等的对象生成不同整数结果可以提高哈希表的性能。</li>
+<li>默认的<code>hashCode</code>是将内存地址转换为的<code>hash</code>值，重写过后就是自定义的计算方式；也可以通过<code>System.identityHashCode(Object)</code>来返回原本的 <code>hashCode</code>。</li>
+</ol>
+<h3 id="equals"><a href="#equals" class="headerlink" title="equals()"></a>equals()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用于比较当前对象与目标对象是否相等，默认是比较引用是否指向同一对象。为<code>public</code>方法，子类可重写。</p>
+<p><strong>为什么需要重写<code>equals</code>方法？</strong></p>
+<p><strong>因为如果不重写equals方法，当将自定义对象放到<code>map</code>或者<code>set</code>中时</strong>；如果这时两个对象的 <code>hashCode</code>相同，就会调用 <code>equals</code>方法进行比较，这个时候会调用 <code>Object</code>中默认的<code>equals</code>方法，而默认的<code>equals</code>方法只是比较了两个对象的引用是否指向了同一个对象，显然大多数时候都不会指向，这样就会将重复对象存入<code>map</code>或者<code>set</code>中。这就<strong>破坏了<code>map</code>与<code>set</code>不能存储重复对象的特性，会造成内存溢出</strong>。</p>
+<p><strong>重写<code>equals</code>方法的几条约定：</strong></p>
+<ol>
+<li><strong>自反性</strong>：即 <code>x.equals(x)</code>返回 <code>true</code>， <code>x</code>不为 <code>null</code>；</li>
+<li><strong>对称性</strong>：即 <code>x.equals(y)</code>与 <code>y.equals(x）</code>的结果相同， <code>x</code>与 <code>y</code>不为 <code>null</code>；</li>
+<li><strong>传递性</strong>：即 <code>x.equals(y)</code>结果为 <code>true</code>, <code>y.equals(z)</code>结果为 <code>true</code>，则 <code>x.equals(z)</code>结果也必须为 <code>true</code>；</li>
+<li><strong>一致性</strong>：即 <code>x.equals(y)</code>返回 <code>true</code>或 <code>false</code>，在未更改 <code>equals</code>方法使用的参数条件下，多次调用返回的结果也必须一致。 <code>x</code>与 <code>y</code>不为 <code>null</code>;</li>
+<li>如果<code>x</code>不为<code>null</code>,<code>x.equals(null)</code>返回<code>false</code>。</li>
+</ol>
+<h3 id="clone"><a href="#clone" class="headerlink" title="clone()"></a>clone()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">native</span> Object <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException;</span><br></pre></td></tr></table></figure>
+
+<p>此方法返回当前对象的一个副本。</p>
+<p>这是一个<code>protected</code>方法，提供给子类重写。但需要实现<code>Cloneable</code>接口，这是一个标记接口，如果没有实现，当调用<code>object.clone()</code>方法，会抛出 <code>CloneNotSupportedException</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CloneTest</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="comment">// 省略getter、setter方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> CloneTest <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="keyword">return</span> (CloneTest) <span class="built_in">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="type">CloneTest</span> <span class="variable">cloneTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CloneTest</span>(<span class="number">23</span>, <span class="string">&quot;XX&quot;</span>);</span><br><span class="line">        <span class="type">CloneTest</span> <span class="variable">clone</span> <span class="operator">=</span> cloneTest.clone();</span><br><span class="line">        System.out.println(clone == cloneTest);</span><br><span class="line">        System.out.println(cloneTest.getAge() == clone.getAge());</span><br><span class="line">        System.out.println(cloneTest.getName() == clone.getName());</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 输出结果</span></span><br><span class="line">    <span class="comment">// false</span></span><br><span class="line">    <span class="comment">// true</span></span><br><span class="line">    <span class="comment">// true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从输出我们看见，<code>clone</code>的对象是一个新的对象；但原对象与<code>clone</code>对象的<code>String</code>类型的<code>name</code>却是同一个引用，这表明，<code>super.clone</code>方法对成员变量如果是引用类型的，进行是浅拷贝。</p>
+<p><strong>那如果我们要进行深拷贝怎么办呢？</strong> </p>
+<p>答案是：如果成员变量是引用类型，想实现深拷贝，则成员变量也要实现<code>Cloneable</code>接口，重写<code>clone</code>方法。</p>
+<h3 id="toString-NaN"><a href="#toString-NaN" class="headerlink" title="toString()"></a>toString()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> getClass().getName() + <span class="string">&quot;@&quot;</span> + Integer.toHexString(hashCode());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个<code>public</code>方法，子类可重写，建议所有子类都重写 <code>toString</code>方法，默认的 <code>toString</code>方法，只是将当前类的全限定性类名 <code>+@+</code>十六进制的 <code>hashCode</code>值。</p>
+<p>我们思考一下为什么需要toString方法？</p>
+<p>可以这么理解：返回当前对象的字符串表示，可以将其打印方便查看对象的信息，方便记录日志信息提供调试。我们可以选择需要表示的重要信息重写到 <code>toString</code>方法中。</p>
+<h3 id="wait-wait-long-wait-long-int"><a href="#wait-wait-long-wait-long-int" class="headerlink" title="wait()&#x2F;wait(long)&#x2F;wait(long,int)"></a>wait()&#x2F;wait(long)&#x2F;wait(long,int)</h3><p><code>wait()</code>方法还有两个带参数的重载方法： <code>wait(long)</code> 、 <code>wait(long,int)</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">wait</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    wait(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">wait</span><span class="params">(<span class="type">long</span> timeout)</span> <span class="keyword">throws</span> InterruptedException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">wait</span><span class="params">(<span class="type">long</span> timeout, <span class="type">int</span> nanos)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="keyword">if</span> (timeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;timeout value is negative&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nanos &lt; <span class="number">0</span> || nanos &gt; <span class="number">999999</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(</span><br><span class="line">                            <span class="string">&quot;nanosecond timeout value out of range&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nanos &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        timeout++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    wait(timeout);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这三个方法是用来线程间通信用的，作用是阻塞当前线程，等待其他线程调用<code>notify()/notifyAll()</code>方法将其唤醒。这些方法都是<code>public final</code>的，不可被重写。</p>
+<p>注意：</p>
+<ol>
+<li>此方法只能在当前线程获取到对象的锁监视器之后才能调用，否则会抛出<code>IllegalMonitorStateException</code>异常。</li>
+<li>调用<code>wait</code>方法，线程会将锁监视器进行释放；而<code>Thread.sleep，Thread.yield()</code>并不会释放锁。</li>
+<li><code>wait</code>方法会一直阻塞，直到其他线程调用当前对象的 <code>notify()/notifyAll()</code>方法将其唤醒；而 <code>wait(long)</code>是等待给定超时时间内（单位毫秒），如果还没有调用<code>notify()/nofiyAll()</code>会自动唤醒；<code>wait(long,int)</code>如果第二个参数大于<code>0</code>并且小于<code>999999</code>，则第一个参数<code>+1</code>作为超时时间；</li>
+</ol>
+<h3 id="notify-notifyAll"><a href="#notify-notifyAll" class="headerlink" title="notify()&#x2F;notifyAll()"></a>notify()&#x2F;notifyAll()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">notify</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title function_">notifyAll</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>前面说了，如果当前线程获得了当前对象锁，调用<code>wait</code>方法，将锁释放并阻塞；这时另一个线程获取到了此对象锁，并调用此对象的 <code>notify()/notifyAll()</code>方法将之前的线程唤醒。这些方法都是<code>public final</code>的，不可被重写。</p>
+<ol>
+<li><code>public final native void notify();</code> 随机唤醒之前在当前对象上调用<code>wait</code>方法的一个线程;</li>
+<li><code>public final native void notifyAll()</code>; 唤醒所有之前在当前对象上调用<code>wait</code>方法的线程</li>
+</ol>
+<p><strong>注意</strong>：调用<code>notify()</code>后，阻塞线程被唤醒，可以参与锁的竞争，但可能调用<code>notify()</code>方法的线程还要继续做其他事，锁并未释放，所以我们看到的结果是，无论<code>notify()</code>是在方法一开始调用，还是最后调用，阻塞线程都要等待当前线程结束才能开始。</p>
+<p>为什么<code>wait()/notify()</code>方法要放到<code>Object</code>中呢？ </p>
+<p>因为每个对象都可以成为锁监视器对象，所以放到<code>Object</code>中，可以直接使用。</p>
+<h3 id="finalize"><a href="#finalize" class="headerlink" title="finalize()"></a>finalize()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">finalize</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>此方法是在垃圾回收之前，JVM会调用此方法来清理资源。此方法可能会将对象重新置为可达状态，导致JVM无法进行垃圾回收。</p>
+<p>我们知道Java相对于C++很大的优势是程序员不用手动管理内存，内存由JVM管理；如果我们的引用对象在堆中没有引用指向他们时，当内存不足时，JVM会自动将这些对象进行回收释放内存，这就是我们常说的垃圾回收。但垃圾回收没有讲述的这么简单。</p>
+<p><strong><code>finalize()</code>方法具有如下4个特点：</strong></p>
+<ol>
+<li>永远不要主动调用某个对象的<code>finalize()</code>方法，该方法由垃圾回收机制自己调用；</li>
+<li><code>finalize()</code>何时被调用，是否被调用具有不确定性；</li>
+<li>当<code>JVM</code>执行可恢复对象的 <code>finalize()</code>可能会将此对象重新变为可达状态；</li>
+<li>当<code>JVM</code>执行<code>finalize()</code>方法时出现异常，垃圾回收机制不会报告异常，程序继续执行。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://deepinfo.online">Godfrey</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://deepinfo.online/posts/45969.html">https://deepinfo.online/posts/45969.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://deepinfo.online" target="_blank">晴耕雨读</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java%E5%9F%BA%E7%A1%80/">Java基础</a></div><div class="post_share"></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/42023.html" title="体会面向接口编程"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/46d810.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">体会面向接口编程</div></div></a></div><div class="next-post pull-right"><a href="/posts/27218.html" title="简单谈谈锁"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/46d810.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">简单谈谈锁</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Godfrey</div><div class="author-info__description">这是我的博客网站</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">方法详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#registerNatives"><span class="toc-number">2.1.</span> <span class="toc-text">registerNatives()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#getClass"><span class="toc-number">2.2.</span> <span class="toc-text">getClass()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hashCode"><span class="toc-number">2.3.</span> <span class="toc-text">hashCode()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#equals"><span class="toc-number">2.4.</span> <span class="toc-text">equals()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clone"><span class="toc-number">2.5.</span> <span class="toc-text">clone()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#toString-NaN"><span class="toc-number">2.6.</span> <span class="toc-text">toString()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wait-wait-long-wait-long-int"><span class="toc-number">2.7.</span> <span class="toc-text">wait()&#x2F;wait(long)&#x2F;wait(long,int)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#notify-notifyAll"><span class="toc-number">2.8.</span> <span class="toc-text">notify()&#x2F;notifyAll()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#finalize"><span class="toc-number">2.9.</span> <span class="toc-text">finalize()</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/7417.html" title="MySQL分库分表">MySQL分库分表</a><time datetime="2023-03-04T12:11:16.000Z" title="发表于 2023-03-04 20:11:16">2023-03-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44851.html" title="CAP理论">CAP理论</a><time datetime="2023-02-01T13:40:07.000Z" title="发表于 2023-02-01 21:40:07">2023-02-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/60316.html" title="使用Github托管项目">使用Github托管项目</a><time datetime="2022-04-03T12:11:10.000Z" title="发表于 2022-04-03 20:11:10">2022-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/38529.html" title="hasCode生成逻辑">hasCode生成逻辑</a><time datetime="2021-06-21T12:47:40.000Z" title="发表于 2021-06-21 20:47:40">2021-06-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44073.html" title="JDK8新特性-Lamda表达式">JDK8新特性-Lamda表达式</a><time datetime="2021-02-14T11:44:07.000Z" title="发表于 2021-02-14 19:44:07">2021-02-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Godfrey</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
