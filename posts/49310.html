@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>深拷贝VS浅拷贝 | 晴耕雨读</title><meta name="author" content="Godfrey"><meta name="copyright" content="Godfrey"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="值类型 vs 引用类型这两个概念的准确区分，对于深、浅拷贝问题的理解非常重要。 正如Java圣经《Java编程思想》第二章的标题所言，在Java中一切都可以视为对象！ 所以来到Java的世界，我们要习惯用引用去操作对象。在Java中，像数组、类Class、枚举Enum、Integer包装类等等，就是典型的引用类型，所以操作时一般来说采用的也是引用传递的方式。但是Java的语言级基础数据类型，诸如i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深拷贝VS浅拷贝">
+<meta property="og:url" content="https://deepinfo.online/posts/49310.html">
+<meta property="og:site_name" content="晴耕雨读">
+<meta property="og:description" content="值类型 vs 引用类型这两个概念的准确区分，对于深、浅拷贝问题的理解非常重要。 正如Java圣经《Java编程思想》第二章的标题所言，在Java中一切都可以视为对象！ 所以来到Java的世界，我们要习惯用引用去操作对象。在Java中，像数组、类Class、枚举Enum、Integer包装类等等，就是典型的引用类型，所以操作时一般来说采用的也是引用传递的方式。但是Java的语言级基础数据类型，诸如i">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg">
+<meta property="article:published_time" content="2020-01-03T12:11:10.000Z">
+<meta property="article:modified_time" content="2023-10-27T06:36:56.245Z">
+<meta property="article:author" content="Godfrey">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://deepinfo.online/posts/49310.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '深拷贝VS浅拷贝',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-27 14:36:56'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="晴耕雨读"><img class="site-icon" src="/img/favicon.png"/><span class="site-name">晴耕雨读</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">深拷贝VS浅拷贝<a class="post-edit-link" href="null_posts/深拷贝vs浅拷贝.md" title="编辑" target="_blank"><i class="fas fa-pencil-alt"></i></a></h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2020-01-03T12:11:10.000Z" title="发表于 2020-01-03 20:11:10">2020-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java%E5%9F%BA%E7%A1%80/">Java基础</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="值类型-vs-引用类型"><a href="#值类型-vs-引用类型" class="headerlink" title="值类型 vs 引用类型"></a>值类型 vs 引用类型</h2><p>这两个概念的准确区分，对于深、浅拷贝问题的理解非常重要。</p>
+<p>正如<code>Java</code>圣经《<code>Java</code>编程思想》第二章的标题所言，在<code>Java</code>中一切都可以视为对象！</p>
+<p>所以来到<code>Java</code>的世界，我们要习惯用引用去操作对象。在<code>Java</code>中，像数组、类<code>Class</code>、枚举<code>Enum</code>、<code>Integer</code>包装类等等，就是典型的引用类型，所以操作时一般来说采用的也是<strong>引用传递</strong>的方式。但是<code>Java</code>的语言级基础数据类型，诸如<code>int</code>这些基本类型，操作时一般采取的则是<strong>值传递</strong>的方式，所以有时候也称它为值类型。</p>
+<p>为了便于下文的讲述和举例，我们这里先定义两个类：<code>Student</code>和<code>Major</code>，分别表示「学生」以及「所学的专业」，二者是包含关系：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 学生的所学专业</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Major</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String majorName; <span class="comment">// 专业名称</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> majorId;     <span class="comment">// 专业代号</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 学生</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;  <span class="comment">// 姓名</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;      <span class="comment">// 年龄</span></span><br><span class="line">    <span class="keyword">private</span> Major major;  <span class="comment">// 所学专业</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027135345680.png" alt="image-20231027135345680" style="zoom:67%;" />
+
+<h2 id="赋值-vs-浅拷贝-vs-深拷贝"><a href="#赋值-vs-浅拷贝-vs-深拷贝" class="headerlink" title="赋值 vs 浅拷贝 vs 深拷贝"></a>赋值 vs 浅拷贝 vs 深拷贝</h2><h3 id="对象赋值"><a href="#对象赋值" class="headerlink" title="对象赋值"></a>对象赋值</h3><p>赋值是日常编程过程中最常见的操作，最简单的比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Student</span> <span class="variable">stu1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Student</span>();</span><br><span class="line"><span class="type">Student</span> <span class="variable">stu2</span> <span class="operator">=</span> stu1;</span><br></pre></td></tr></table></figure>
+
+<p>严格来说，这种不能算是对象拷贝，因为拷贝的仅仅只是引用关系，并没有生成新的实际对象：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027135815274.png" alt="image-20231027135815274" style="zoom:80%;" />
+
+<h3 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h3><p>浅拷贝属于对象克隆方式的一种，重要的特性体现在这个<strong>「浅」</strong> 字上。</p>
+<p>比如我们试图通过<code>studen1</code>实例，拷贝得到<code>student2</code>，如果是浅拷贝这种方式，大致模型可以示意成如下所示的样子：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027135944683.png" alt="image-20231027135944683" style="zoom:80%;" />
+
+<p>很明显，<strong>值类型</strong>的字段会复制一份，而<strong>引用类型</strong>的字段拷贝的仅仅是引用地址，而该引用地址指向的实际对象空间其实只有一份。</p>
+<h3 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h3><p>深拷贝相较于上面所示的浅拷贝，除了值类型字段会复制一份，引用类型字段所指向的对象，会在内存中也<strong>创建一个副本</strong>，就像这个样子：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027140125719.png" alt="image-20231027140125719" style="zoom: 80%;" />
+
+<p>原理很清楚明了，下面来看看具体的代码实现吧。</p>
+<h3 id="浅拷贝实现代码"><a href="#浅拷贝实现代码" class="headerlink" title="浅拷贝实现代码"></a>浅拷贝实现代码</h3><p>还以上文的例子来讲，我想通过<code>student1</code>拷贝得到<code>student2</code>，浅拷贝的典型实现方式是：让被复制对象的类实现<code>Cloneable</code>接口，并重写<code>clone()</code>方法即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;  <span class="comment">// 姓名</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;      <span class="comment">// 年龄</span></span><br><span class="line">    <span class="keyword">private</span> Major major;  <span class="comment">// 所学专业</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们写个测试代码，一试便知：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Major</span> <span class="variable">m</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Major</span>(<span class="string">&quot;计算机科学与技术&quot;</span>,<span class="number">666666</span>);</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Student</span>( <span class="string">&quot;Godfrey&quot;</span>, <span class="number">18</span>, m );</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 由 student1 拷贝得到 student2</span></span><br><span class="line">        <span class="type">Student</span> <span class="variable">student2</span> <span class="operator">=</span> (Student) student1.clone();</span><br><span class="line"></span><br><span class="line">        System.out.println( student1 == student2 );</span><br><span class="line">        System.out.println( student1 );</span><br><span class="line">        System.out.println( student2 );</span><br><span class="line">        System.out.println( <span class="string">&quot;\n&quot;</span> );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 修改student1的值类型字段</span></span><br><span class="line">        student1.setAge( <span class="number">35</span> );</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 修改student1的引用类型字段</span></span><br><span class="line">        m.setMajorName( <span class="string">&quot;电子信息工程&quot;</span> );</span><br><span class="line">        m.setMajorId( <span class="number">888888</span> );</span><br><span class="line"></span><br><span class="line">        System.out.println( student1 );</span><br><span class="line">        System.out.println( student2 );</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行得到如下结果：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027140635169.png" alt="image-20231027140635169" style="zoom:80%;" />
+
+<p>从结果可以看出：</p>
+<ul>
+<li><code>student1==student2</code>打印false，说明<code>clone()</code>方法的确克隆出了一个新对象；</li>
+<li>修改值类型字段并不影响克隆出来的新对象，符合预期；</li>
+<li>而修改了<code>student1</code>内部的引用对象，克隆对象<code>student2</code>也受到了波及，说明内部还是关联在一起的</li>
+</ul>
+<h3 id="深拷贝代码实现"><a href="#深拷贝代码实现" class="headerlink" title="深拷贝代码实现"></a>深拷贝代码实现</h3><p><strong>深度遍历式拷贝</strong></p>
+<p>虽然<code>clone()</code>方法可以完成对象的拷贝工作，但是注意：<code>clone()</code>方法默认是浅拷贝行为，就像上面的例子一样。若想实现深拷贝需覆写 <code>clone()</code>方法实现引用对象的深度遍历式拷贝，进行地毯式搜索。</p>
+<p>所以对于上面的例子，如果想实现深拷贝，首先需要对更深一层次的引用类<code>Major</code>做改造，让其也实现<code>Cloneable</code>接口并重写<code>clone()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Major</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Object <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其次我们还需要在<strong>顶层的</strong>调用类中重写<code>clone</code>方法，来调用引用类型字段的<code>clone()</code>方法实现深度拷贝，对应到本文那就是<code>Student</code>类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException &#123;</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> (Student) <span class="built_in">super</span>.clone();</span><br><span class="line">        student.major = (Major) major.clone(); <span class="comment">// 重要！！！</span></span><br><span class="line">        <span class="keyword">return</span> student;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候上面的测试用例不变，运行可得结果：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027143237618.png" alt="image-20231027143237618" style="zoom:80%;" />
+
+<p>很明显，这时候<code>student1</code>和<code>student2</code>两个对象就完全独立了，不受互相的干扰。</p>
+<p><strong>利用反序列化实现深拷贝</strong></p>
+<p>利用反序列化技术，我们也可以从一个对象深拷贝出另一个复制对象，而且这种方式在解决多层套娃式的深拷贝问题时效果出奇的好。</p>
+<p>所以我们这里改造一下<code>Student</code>类，让其<code>clone()</code>方法通过序列化和反序列化的方式来生成一个原对象的深拷贝副本：·</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;  <span class="comment">// 姓名</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;      <span class="comment">// 年龄</span></span><br><span class="line">    <span class="keyword">private</span> Major major;  <span class="comment">// 所学专业</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Student <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 将对象本身序列化到字节流</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>( byteArrayOutputStream );</span><br><span class="line">            objectOutputStream.writeObject( <span class="built_in">this</span> );</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 再将字节流通过反序列化方式得到对象副本</span></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>( <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>( byteArrayOutputStream.toByteArray() ) );</span><br><span class="line">            <span class="keyword">return</span> (Student) objectInputStream.readObject();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然这种情况下要求被引用的子类（比如这里的<code>Major</code>类）也必须是可以序列化的，即实现了<code>Serializable</code>接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Major</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// ... 其他省略 ...</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候测试用例完全不变，直接运行，也可以得到如下结果：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027143619849.png" alt="image-20231027143619849" style="zoom:80%;" />
+
+<p>很明显，这时候<code>student1</code>和<code>student2</code>两个对象也是完全独立的，不受互相的干扰，深拷贝完成。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://deepinfo.online">Godfrey</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://deepinfo.online/posts/49310.html">https://deepinfo.online/posts/49310.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://deepinfo.online" target="_blank">晴耕雨读</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java/">Java</a></div><div class="post_share"></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/posts/27218.html" title="简单谈谈锁"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">简单谈谈锁</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/44073.html" title="JDK8新特性-Lamda表达式"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-14</div><div class="title">JDK8新特性-Lamda表达式</div></div></a></div><div><a href="/posts/64503.html" title="JDK8新特性-接口默认方法"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/4bf5d7.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-14</div><div class="title">JDK8新特性-接口默认方法</div></div></a></div><div><a href="/posts/43863.html" title="float和double的坑"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-01</div><div class="title">float和double的坑</div></div></a></div><div><a href="/posts/38529.html" title="hasCode生成逻辑"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-21</div><div class="title">hasCode生成逻辑</div></div></a></div><div><a href="/posts/42023.html" title="体会面向接口编程"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-02-03</div><div class="title">体会面向接口编程</div></div></a></div><div><a href="/posts/6028.html" title="创建对象的几种姿势"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/46d810.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="title">创建对象的几种姿势</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Godfrey</div><div class="author-info__description">这是我的博客网站</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%80%BC%E7%B1%BB%E5%9E%8B-vs-%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">值类型 vs 引用类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%8B%E5%80%BC-vs-%E6%B5%85%E6%8B%B7%E8%B4%9D-vs-%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.</span> <span class="toc-text">赋值 vs 浅拷贝 vs 深拷贝</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E8%B5%8B%E5%80%BC"><span class="toc-number">2.1.</span> <span class="toc-text">对象赋值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%85%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.2.</span> <span class="toc-text">浅拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">2.3.</span> <span class="toc-text">深拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%85%E6%8B%B7%E8%B4%9D%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="toc-number">2.4.</span> <span class="toc-text">浅拷贝实现代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.5.</span> <span class="toc-text">深拷贝代码实现</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/7417.html" title="MySQL分库分表">MySQL分库分表</a><time datetime="2023-03-04T12:11:16.000Z" title="发表于 2023-03-04 20:11:16">2023-03-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44851.html" title="CAP理论">CAP理论</a><time datetime="2023-02-01T13:40:07.000Z" title="发表于 2023-02-01 21:40:07">2023-02-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/60316.html" title="使用Github托管项目">使用Github托管项目</a><time datetime="2022-04-03T12:11:10.000Z" title="发表于 2022-04-03 20:11:10">2022-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/38529.html" title="hasCode生成逻辑">hasCode生成逻辑</a><time datetime="2021-06-21T12:47:40.000Z" title="发表于 2021-06-21 20:47:40">2021-06-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44073.html" title="JDK8新特性-Lamda表达式">JDK8新特性-Lamda表达式</a><time datetime="2021-02-14T11:44:07.000Z" title="发表于 2021-02-14 19:44:07">2021-02-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Godfrey</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
