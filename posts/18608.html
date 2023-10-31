@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>详解一条SQL的执行过程-上篇 | 晴耕雨读</title><meta name="author" content="Godfrey"><meta name="copyright" content="Godfrey"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言天天和数据库打交道，一天能写上几十条SQL语句，但你知道我们的系统是如何和数据库交互的吗？MySQL如何帮我们存储数据、又是如何帮我们管理事务？是不是感觉真的除了写几个「select * from dual」外基本脑子一片空白？这篇文章就将带你走进MySQL的世界，让你彻底了解系统到底是如何和MySQL交互的，MySQL在接受到我们发送的SQL语句时又分别做了哪些事情。 MySQL驱动我们的系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解一条SQL的执行过程-上篇">
+<meta property="og:url" content="https://deepinfo.online/posts/18608.html">
+<meta property="og:site_name" content="晴耕雨读">
+<meta property="og:description" content="前言天天和数据库打交道，一天能写上几十条SQL语句，但你知道我们的系统是如何和数据库交互的吗？MySQL如何帮我们存储数据、又是如何帮我们管理事务？是不是感觉真的除了写几个「select * from dual」外基本脑子一片空白？这篇文章就将带你走进MySQL的世界，让你彻底了解系统到底是如何和MySQL交互的，MySQL在接受到我们发送的SQL语句时又分别做了哪些事情。 MySQL驱动我们的系">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg">
+<meta property="article:published_time" content="2022-02-01T13:51:07.000Z">
+<meta property="article:modified_time" content="2023-10-27T13:11:56.379Z">
+<meta property="article:author" content="Godfrey">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://deepinfo.online/posts/18608.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: false,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '详解一条SQL的执行过程-上篇',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-27 21:11:56'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/1f7948.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="晴耕雨读"><img class="site-icon" src="/img/favicon.png"/><span class="site-name">晴耕雨读</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 休闲</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">详解一条SQL的执行过程-上篇<a class="post-edit-link" href="null_posts/详解一条SQL的执行过程-上篇.md" title="编辑" target="_blank"><i class="fas fa-pencil-alt"></i></a></h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2022-02-01T13:51:07.000Z" title="发表于 2022-02-01 21:51:07">2022-02-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>天天和数据库打交道，一天能写上几十条SQL语句，但你知道我们的系统是如何和数据库交互的吗？MySQL如何帮我们存储数据、又是如何帮我们管理事务？是不是感觉真的除了写几个「select * from dual」外基本脑子一片空白？这篇文章就将带你走进MySQL的世界，让你彻底了解系统到底是如何和MySQL交互的，MySQL在接受到我们发送的SQL语句时又分别做了哪些事情。</p>
+<h2 id="MySQL驱动"><a href="#MySQL驱动" class="headerlink" title="MySQL驱动"></a>MySQL驱动</h2><p>我们的系统在和MySQL数据库进行通信的时候，总不可能是平白无故的就能接收和发送请求，就算是你没有做什么操作，那总该是有其他的“人”帮我们做了一些事情，基本上使用过MySQL数据库的程序员多多少少都会知道MySQL驱动这个概念的。就是这个MySQL驱动在底层帮我们做了对数据库的连接，只有建立了连接了，才能够有后面的交互。看下图表示：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027201313212.png" alt="image-20231027201313212" style="zoom:67%;" />
+
+<p>这样的话，在系统和MySQL进行交互之前，MySQL驱动会帮我们建立好连接，然后我们只需要发送SQL语句就可以执行CRUD了。一次SQL请求就会建立一个连接，多个请求就会建立多个连接，那么问题来了，我们系统肯定不是一个人在使用的，换句话说肯定是存在多个请求同时去争抢连接的情况。我们的Web系统一般都是部署在Tomcat容器中的，而Tomcat是可以并发处理多个请求的，这就会导致多个请求会去建立多个连接，然后使用完再都去关闭，这样会有什么问题呢？如下图:</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027201833361.png" alt="image-20231027201833361" style="zoom: 80%;" />
+
+<p>Java系统在通过MySQL驱动和MySQL数据库连接的时候是基于TCP&#x2F;IP协议的，所以如果每个请求都是新建连接和销毁连接，那这样势必会造成不必要的浪费和性能的下降，也就说上面的多线程请求的时候频繁的创建和销毁连接显然是不合理的。必然会大大降低我们系统的性能，但是如果给你提供一些固定的用来连接的线程，这样是不是不需要反复的创建和销毁连接了呢？相信懂行的朋友会会心一笑，没错，说的就是数据库连接池。</p>
+<p><strong>数据库连接池：维护一定的连接数，方便系统获取连接，使用就去池子中获取，用完放回去就可以了，我们不需要关心连接的创建与销毁，也不需要关心线程池是怎么去维护这些连接的。</strong></p>
+  <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027202659251.png" alt="image-20231027202659251" style="zoom:80%;" />
+
+<p>常见的数据库连接池有<code>Druid、C3P0、DBCP</code>，连接池实现原理在这里就不深入讨论了，采用连接池大大节省了不断创建与销毁线程的开销，这就是有名的「池化」思想，不管是线程池还是HTTP连接池，都能看到它的身影。</p>
+<h2 id="数据库连接池"><a href="#数据库连接池" class="headerlink" title="数据库连接池"></a>数据库连接池</h2><p>到这里，我们已经知道的是我们的系统在访问MySQL数据库的时候，建立的连接并不是每次请求都会去创建的，而是从数据库连接池中去获取，这样就解决了因为反复的创建和销毁连接而带来的性能损耗问题了。不过这里有个小问题，业务系统是并发的，而MySQL接受请求的线程呢，只有一个？</p>
+<p>其实MySQL的架构体系中也已经提供了这样的一个池子，也是数据库连池。双方都是通过数据库连接池来管理各个连接的，这样一方面线程之前不需要是争抢连接，更重要的是不需要反复的创建的销毁连接。</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027202853794.png" alt="image-20231027202853794" style="zoom:80%;" />
+
+<p>至此系统和MySQL数据库之间的连接问题已经说明清楚了。那么MySQL数据库中的这些连接是怎么来处理的，又是谁来处理呢？</p>
+<h2 id="线程处理连接"><a href="#线程处理连接" class="headerlink" title="线程处理连接"></a>线程处理连接</h2><p>对计算基础稍微有一点了解的的同学都是知道的，网络中的连接都是由线程来处理的，所谓网络连接说白了就是一次请求，每次请求都会有相应的线程去处理的。也就是说对于SQL语句的请求在MySQL中是由一个个的线程去处理的。</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027203049025.png" alt="image-20231027203049025" style="zoom:80%;" />
+
+<p>那这些线程会怎么去处理这些请求？会做哪些事情？</p>
+<h2 id="SQL接口"><a href="#SQL接口" class="headerlink" title="SQL接口"></a>SQL接口</h2><p>MySQL中处理请求的线程在获取到请求以后获取SQL语句去交给SQL接口去处理。</p>
+<h2 id="查询解析器"><a href="#查询解析器" class="headerlink" title="查询解析器"></a>查询解析器</h2><p>假如现在有这样的一个 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> stuName,age,sex <span class="keyword">FROM</span> students <span class="keyword">WHERE</span> id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>但是这个SQL是写给我们人看的，机器哪里知道你在说什么？这个时候<code>解析器</code>就上场了。他会将SQL接口传递过来的SQL语句进行解析，翻译成MySQL自己能认识的语言，至于怎么解析的就不需要在深究了，无非是自己一套相关的规则。</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027203253907.png" alt="image-20231027203253907" style="zoom:80%;" />
+
+<p>现在SQL已经被解析成MySQL认识的样子的，那下一步是不是就是执行吗？理论上是这样子的，但是MySQL的强大远不止于此，他还会帮我们选择最优的查询路径。<strong>什么叫最优查询路径？就是 MySQL 会按照自己认为的效率最高的方式去执行查询</strong></p>
+<p>体是怎么做到的呢？这就要说到MySQL的查询优化器了。</p>
+<h2 id="查询优化器"><a href="#查询优化器" class="headerlink" title="查询优化器"></a>查询优化器</h2><p>查询优化器内部具体怎么实现的我们不需要是关心，我需要知道的是MySQL会帮我去使用他自己认为的最好的方式去优化这条SQL语句，并生成一条条的执行计划，比如你创建了多个索引，MySQL会依据<strong>成本最小原则</strong>来选择使用对应的索引，这里的成本主要包括两个方面,IO成本和CPU成本。</p>
+<p><strong>IO成本</strong>: 即从磁盘把数据加载到内存的成本，默认情况下，读取数据页的IO成本是1，MySQL是以页的形式读取数据的，即当用到某个数据时，并不会只读取这个数据，而会把这个数据相邻的数据也一起读到内存中，这就是有名的程序局部性原理，所以MySQL每次会读取一整页，一页的成本就是1。所以IO的成本主要和页的大小有关。</p>
+<p><strong>CPU成本</strong>：将数据读入内存后，还要检测数据是否满足条件和排序等CPU操作的成本，显然它与行数有关，默认情况下，检测记录的成本是0.2。</p>
+<p>MySQL优化器会计算「IO 成本 + CPU」成本最小的那个索引来执行。</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027203550498.png" alt="image-20231027203550498" style="zoom:80%;" />
+
+<h2 id="执行器"><a href="#执行器" class="headerlink" title="执行器"></a>执行器</h2><p>执行器是一个非常重要的组件，因为前面那些组件的操作最终必须通过执行器去调用存储引擎接口才能被执行。执行器最终最根据一系列的执行计划去调用存储引擎的接口去完成SQL的执行。</p>
+<p> <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027210911422.png" alt="image-20231027210911422"></p>
+<h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>查询优化器会调用存储引擎的接口，去执行SQL也就是说真正执行SQL的动作是在存储引擎中完成的。本文中，我们先对存储引擎有一个大致的认识。</p>
+<p>我们以一个更新的SQL语句来说明，SQL如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> students <span class="keyword">SET</span> stuName <span class="operator">=</span> <span class="string">&#x27;小强&#x27;</span> <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>当我们系统发出这样的查询去交给MySQL的时候，MySQL会按照我们上面介绍的一系列的流程最终通过执行器调用存储引擎去执行，流程图就是上面那个。在执行这个SQL的时候，SQL语句对应的数据要么是在内存中，要么是在磁盘中，如果直接在磁盘中操作，那这样的随机IO读写的速度肯定让人无法接受的，所以每次在执行SQL的时候都会将其数据加载到内存中，这块内存就是InnoDB 中一个非常重要的组件：<strong>缓冲池（Buffer Pool）</strong>。</p>
+<p>Buffer Pool（缓冲池）是 <strong>InnoDB</strong> 存储引擎中非常重要的内存结构，顾名思义，缓冲池其实就是类似Redis一样的作用，起到一个缓存的作用，因为我们都知道MySQL的数据最终是存储在磁盘中的，如果没有这个 Buffer Pool 那么我们每次的数据库请求都会磁盘中查找，这样必然会存在IO操作，这肯定是无法接受的。但是有了 Buffer Pool 就是我们第一次在查询的时候会将查询的结果存到 Buffer Pool 中，这样后面再有请求的时候就会先从缓冲池中去查询，如果没有再去磁盘中查找，然后在放到 Buffer Pool 中，如下图：</p>
+ <img src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/typro/image-20231027204024282.png" alt="image-20231027204024282" style="zoom:80%;" />
+
+<p>按照上面的那幅图，这条SQL语句的执行步骤大致是这样子的：</p>
+<ol>
+<li>Innodb存储引擎会在缓冲池中查找id&#x3D;1的这条数据是否存在；</li>
+<li>发现不存在，那么就会去磁盘中加载，并将其存放在缓冲池中；</li>
+<li>该条记录会被加上一个独占锁（总不能你在修改的时候别人也在修改吧。）</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://deepinfo.online">Godfrey</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://deepinfo.online/posts/18608.html">https://deepinfo.online/posts/18608.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://deepinfo.online" target="_blank">晴耕雨读</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></div><div class="post_share"></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/46257.html" title="详解一条SQL的执行过程-下篇"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">详解一条SQL的执行过程-下篇</div></div></a></div><div class="next-post pull-right"><a href="/posts/38529.html" title="hasCode生成逻辑"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/4c1b70.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">hasCode生成逻辑</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/posts/46257.html" title="详解一条SQL的执行过程-下篇"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/50bb6c.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-01</div><div class="title">详解一条SQL的执行过程-下篇</div></div></a></div><div><a href="/posts/7417.html" title="MySQL分库分表"><img class="cover" src="https://guoze-oss.oss-cn-chengdu.aliyuncs.com/hexo/4c1b70.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-04</div><div class="title">MySQL分库分表</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Godfrey</div><div class="author-info__description">这是我的博客网站</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL%E9%A9%B1%E5%8A%A8"><span class="toc-number">2.</span> <span class="toc-text">MySQL驱动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0"><span class="toc-number">3.</span> <span class="toc-text">数据库连接池</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%A4%84%E7%90%86%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">线程处理连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL%E6%8E%A5%E5%8F%A3"><span class="toc-number">5.</span> <span class="toc-text">SQL接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-number">6.</span> <span class="toc-text">查询解析器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number">7.</span> <span class="toc-text">查询优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="toc-number">8.</span> <span class="toc-text">执行器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-number">9.</span> <span class="toc-text">存储引擎</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44073.html" title="JDK8新特性-Lamda表达式">JDK8新特性-Lamda表达式</a><time datetime="2028-08-14T11:44:07.000Z" title="发表于 2028-08-14 19:44:07">2028-08-14</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/7417.html" title="MySQL分库分表">MySQL分库分表</a><time datetime="2023-03-04T12:11:16.000Z" title="发表于 2023-03-04 20:11:16">2023-03-04</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/44851.html" title="CAP理论">CAP理论</a><time datetime="2023-02-01T13:40:07.000Z" title="发表于 2023-02-01 21:40:07">2023-02-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/60316.html" title="使用Github托管项目">使用Github托管项目</a><time datetime="2022-04-03T12:11:10.000Z" title="发表于 2022-04-03 20:11:10">2022-04-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/posts/46257.html" title="详解一条SQL的执行过程-下篇">详解一条SQL的执行过程-下篇</a><time datetime="2022-02-01T14:41:23.000Z" title="发表于 2022-02-01 22:41:23">2022-02-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Godfrey</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
